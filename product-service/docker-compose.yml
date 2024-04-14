@@ -1,0 +1,24 @@
+version: '3.1'
+
+services:
+  mongo:
+    image: mongo
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data-db:/data/mongodb
+
+  mongo-express:
+    image: mongo-express
+    container_name: mongo-express
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_MONGODB_SERVER: "mongo"  # Use the service name defined above
+      ME_CONFIG_BASICAUTH_USERNAME: "admin"  # Optional: MongoDB Express basic auth username
+      ME_CONFIG_BASICAUTH_PASSWORD: "password"  # Optional: MongoDB Express basic auth password
+      ME_CONFIG_OPTIONS_EDITORTHEME: "ambiance"  # Optional: MongoDB Express UI theme
+
+volumes:
+  mongo-data-db:
