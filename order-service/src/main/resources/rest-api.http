@@ -5,7 +5,7 @@ Content-Type: application/json
 {
   "orderLineItemsList": [
     {
-      "skuCode": "pixel393",
+      "skuCode": "iphone1",
       "price": 1200,
       "quantity": 1
     }

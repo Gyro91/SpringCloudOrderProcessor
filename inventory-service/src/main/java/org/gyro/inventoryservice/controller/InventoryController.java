@@ -1,10 +1,12 @@
 package org.gyro.inventoryservice.controller;
 
-
 import lombok.RequiredArgsConstructor;
+import org.gyro.inventoryservice.dto.InventoryResponse;
 import org.gyro.inventoryservice.service.InventoryService;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/inventory")
@@ -13,10 +15,10 @@ public class InventoryController {
 
     private final InventoryService inventoryService;
 
-
-    @GetMapping("/{sku-code}")
+    @GetMapping
     @ResponseStatus(HttpStatus.OK)
-    public boolean isInStock(@PathVariable("sku-code") String skuCode) {
-        return inventoryService.isInStock(skuCode);
+    public List<InventoryResponse> getInventoryDetails(@RequestParam List<String> skuCode) {
+        List<InventoryResponse> inventoryResponses = inventoryService.getInventoryStatus(skuCode);
+        return inventoryResponses;
     }
 }

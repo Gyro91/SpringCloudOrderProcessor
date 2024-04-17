@@ -1,13 +1,16 @@
 package org.gyro.orderservice.service;
 
 import lombok.RequiredArgsConstructor;
+import org.gyro.orderservice.dto.InventoryResponse;
 import org.gyro.orderservice.dto.OrderLineItemsDto;
 import org.gyro.orderservice.dto.OrderRequest;
 import org.gyro.orderservice.model.Order;
 import org.gyro.orderservice.model.OrderLineItems;
 import org.gyro.orderservice.repository.OrderRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.web.reactive.function.client.WebClient;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 
@@ -16,6 +19,7 @@ import java.util.UUID;
 public class OrderService {
 
     private final OrderRepository orderRepository;
+    private final WebClient webClient;
 
     public void placeOrder(OrderRequest orderRequest) {
         Order order = new Order();
@@ -28,7 +32,22 @@ public class OrderService {
 
         order.setOrderLineItemsList(orderLineItems);
 
-        orderRepository.save(order);
+        List<String> skuCodes = order.getOrderLineItemsList().stream()
+                .map(OrderLineItems::getSkuCode).toList();
+        InventoryResponse[] inventoryResponses = webClient.get()
+                .uri("http://localhost:8084/api/inventory",
+                        uriBuilder -> uriBuilder.queryParam("skuCode", skuCodes).build())
+                .retrieve()
+                .bodyToMono(InventoryResponse[].class)
+                .block();
+        assert inventoryResponses != null;
+        boolean allProductsInStock = Arrays.stream(inventoryResponses).allMatch(inventoryResponse -> inventoryResponse.isInStock());
+        if (allProductsInStock) {
+            orderRepository.save(order);
+        } else {
+            throw new IllegalArgumentException("Product is not in stock, please try again later");
+        }
+
     }
 
     private OrderLineItems mapToDto(OrderLineItemsDto orderLineItemsDto) {
