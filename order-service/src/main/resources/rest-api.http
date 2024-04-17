@@ -1,0 +1,13 @@
+POST http://localhost:8082/api/order
+Accept: application/json
+Content-Type: application/json
+
+{
+  "orderLineItemsList": [
+    {
+      "skuCode": "pixel393",
+      "price": 1200,
+      "quantity": 1
+    }
+  ]
+}
